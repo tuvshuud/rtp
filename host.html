@@ -1,0 +1,74 @@
+﻿<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
+<script src="/public/js/bootstrap-carousel.js"></script>
+<script src="/public/js/bootstrap.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<style>
+#image_container {
+	position: absolute;
+height:720px;
+width:960px;
+}
+#control {
+	position: absolute;
+}
+</style>
+<script>
+var socket = io.connect('http://localhost:80');
+
+//Client holbogdoh uyed
+socket.on('connect', function(){
+		alert("connected");
+	});
+socket.on('init', function(i, slides){
+	$("img").attr("src", slides[i]);
+});
+
+socket.on('update_slide', function(i, slides){		
+		$("img").attr("src", slides[i]);
+	});
+
+$(document).ready(function() {
+	$("#n").click(function(){
+	  socket.emit('send_slide', 'next');
+	});
+	
+	$("#p").click(function(){
+	  socket.emit('send_slide', 'previous');
+	});
+});
+</script>
+<body>
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span2 well" style="border-right:1px;">
+			<section id="slideUpload">
+			Slide upload section
+			</section>
+			<hr>
+			<section id="slideList">
+			Slide List
+			</section>
+			<hr>
+			<section id="connectedUser">
+			Connected User list
+			</section>
+		</div>
+		<div class="span10">
+			<div id="image_container">				
+				<section id="control">
+				<div class="btn-group">
+					<a href="#" id="s" class="btn">Эхлэл</a>
+					<a href="#" id="p" class="btn">Өмнөх</a>
+					<a href="#" id="n" class="btn">Дараагийнх</a>
+					<a href="#" id="e" class="btn">Төгсгөл</a>
+				</div>
+				<img src="" class="img-polaroid"/>
+			</section>
+			</div>
+			<hr>			
+		</div>
+	</div>
+	
+</div>
+</body>

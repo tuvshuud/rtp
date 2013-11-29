@@ -1,0 +1,30 @@
+<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
+<script src="/public/js/bootstrap-carousel.js"></script>
+<script src="/public/js/bootstrap.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script>
+var socket = io.connect('http://localhost:80');
+
+//Client holbogdoh uyed
+socket.on('connect', function(i, slides){
+		alert("connected");
+	});
+
+socket.on('init', function(i, slides){
+	$("img").attr("src", slides[i]);
+});
+	
+socket.on('update_slide', function(i, slides){		
+		$("img").attr("src", slides[i]);
+	});
+	
+socket.on('receive_slides', function(slides){		
+		
+	});
+</script>
+<body>
+<div class="container">
+	<img src="" class="img-polaroid"/>
+</div>
+</body>

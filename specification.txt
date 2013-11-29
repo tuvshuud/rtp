@@ -1,0 +1,14 @@
+RTP
+-Host
+--Different host users
+--Authentication required /username, password/
+--Presentation Add, Delete, Select
+--Set access specifier for presentation
+--Custom url for each host users
+
+-Admin 
+--Add, Delete, Update host users
+
+-Client 
+--See current presentation
+--If access == private then required to enter password

@@ -1,0 +1,59 @@
+#image_container {
+	position: absolute;
+	height:720px;
+	width:960px;
+}
+#control {
+	position: relative;
+}
+.thumb { 
+	width: 150px;
+	height: 120px;
+	border: 1px;
+	margin-bottom: 10px;
+}
+label { 
+	background:url('http://www.unionpress.com/images/upload-green.png') no-repeat 0 0;
+	background-size: 120px;
+	background-position: center;
+	height: 150px;
+}
+input[type="file"] {
+	opacity: 0;
+	width:200px; 
+}
+.row-fluid .span2 {
+	width: 16%;
+}
+#conversation{
+	max-height: 50%;
+	height: 50%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+#users{
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 20%;
+	height: 20%;
+}
+#chat {
+	height: 650px;
+	padding: 10px;
+	border: 1px black;
+}
+
+#slideList { 	
+}
+
+#sidebar {
+    max-height: 600px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+#sidebar:hover {
+    overflow-y: auto;
+}
+body{
+	overflow-y: hidden;
+}

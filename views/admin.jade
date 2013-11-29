@@ -1,0 +1,153 @@
+html
+  head
+    include header
+    script
+      var srvr = "#{server}"; 
+      var usernameRegex = new RegExp('^[a-z0-9_-]{3,16}$','i');
+      var passwordRegex = new RegExp('^[a-z0-9_-]{6,18}$', 'i');
+      var nameRegex = new RegExp('^[a-zA-Z]{4,18}$', 'i');
+      var socket = io.connect(srvr + '/admin');
+      socket.on('status', function(msg){
+        say(msg, 'success');
+      });
+      socket.on('updateAdmin', function(data){
+      if($('#admin-table tr').length>2)
+      $('#admin-table').find("tr:gt(0):not(:last)").remove();
+      $.each(data, function(index, value){
+      $('#admin-table-header').after('<tr><td>'+value.username+'</td><td>'+value.password+'</td><td>[<a href=javascript:adminDelete(\''+value.username+'\')>устгах</a>]</td></tr>');});});
+      socket.on('updateHost', function(data){$.each(data, function(index, value){
+      $('#hostusername').val(value.username);
+      $('#hostpassword').val(value.password);});
+      });
+      socket.on('updateUser', function(data){
+      if($('#user-table tr').length>2)
+      $('#user-table').find('tr:gt(0):not(:last)').remove();
+      $.each(data, function(index, value){
+      $('#user-table-header').after('<tr><td>' + value.firstname + '</td><td>' + value.lastname + '</td><td>' + value.username + '</td><td>' + value.password + '</td><td>[<a href="javascript:userDelete(\'' + value.username + '\')">устгах</a>]</td></tr>');
+      });});
+      $(function () {
+      $('#tabbable a').click(function (e) {
+      e.preventDefault();
+      $(this).tab('show');
+      })
+      $("#addAdmin").click(function(){
+      uname = $("#adminusername").val();
+      pwd = $("#adminpassword").val();
+      if(usernameRegex.test(uname) && passwordRegex.test(pwd)){
+      socket.emit('addAdmin',
+      {
+      username : uname,
+      password : pwd,
+      });
+      }else{
+      say('Оруулсан мэдээллээ шалгана уу!');
+      }
+      });
+      $("#addUser").click(function(){
+      uname = $('#userusername').val();
+      pwd = $('#userpassword').val();
+      fname = $('#userfirstname').val();
+      lname = $('#userlastname').val();
+      if(usernameRegex.test(uname) && passwordRegex.test(pwd) && nameRegex.test(fname) && nameRegex.test(lname)){
+      socket.emit('addUser',
+      {
+      username: uname,
+      password: pwd,
+      firstname: fname,
+      lastname: lname,
+      })
+      }else{
+      say('Оруулсан мэдээллээ шалгана уу!', 'info');
+      }
+      });
+      $("#actionHost").click(function(){
+      uname = $("#hostusername").val();
+      pwd = $("#hostpassword").val();
+      if(usernameRegex.test(uname) && passwordRegex.test(pwd)){
+      socket.emit('actionHost',
+      {
+      username : uname,
+      password : pwd,
+      });
+      }else{
+      say('Оруулсан мэдээллээ шалгана уу!', 'info');
+      }
+      });
+      })
+      function adminDelete(data){
+      socket.emit('deleteAdmin',
+      {
+      username : data,
+      });
+      }
+      function userDelete(data){
+      socket.emit('deleteUser',
+      {
+      username: data,
+      })
+      }
+  body
+    div.container-fluid
+      ul#tabbable.nav.nav-tabs
+        li
+          a(href='#adminList', data-toggle='tab') Админ
+        li
+          a(href='#hostDetail', data-toggle='tab') Хост хэрэглэгч
+        li
+          a(href='#userDetail', data-toggle='tab') Хэрэглэгчид
+        li
+          a(href='/logout') Log out
+      .tab-content
+        #adminList.tab-pane.active
+          table#admin-table.table.table-bordered
+            tr#admin-table-header
+              th Нэвтрэх нэр
+              th Нууц үг
+              th
+            tr
+              td
+                input#adminusername(type='text', style='height: 30px;')
+              td
+                input#adminpassword(type='password', style='height: 30px;')
+              td
+                | [
+                a#addAdmin(href='#') нэмэх
+                | ]
+        #hostDetail.tab-pane
+          table
+            tr
+              td Нэвтрэх нэр
+              td
+                input#hostusername(type='text', value='', style='height: 30px;')
+            tr
+              td Нууц үг
+              td
+                input#hostpassword(type='text', value='', style='height: 30px;')
+            tr
+              td
+              td
+                a#actionHost.btn(href='#')
+                  i.icon-ok
+        #userDetail.tab-pane
+          table#user-table.table.table-bordered
+            tr#user-table-header
+              th Нэр
+              th Овог
+              th Нэвтрэх нэр
+              th Нууц үг
+              th
+            #userlist
+            tr
+              td
+                input#userfirstname(type='text')
+              td
+                input#userlastname(type='text')
+              td
+                input#userusername(type='text')
+              td
+                input#userpassword(type='password')
+              td
+                | [
+                a#addUser(href='#') нэмэх
+                | ]
+      .notifications.bottom-right

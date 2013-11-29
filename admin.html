@@ -1,0 +1,25 @@
+<link rel="stylesheet" type="text/css" href="/public/css/bootstrap.css">
+<script src="/public/js/bootstrap-carousel.js"></script>
+<script src="/public/js/bootstrap.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script>
+var socket = io.connect('http://192.168.2.4:8080');
+
+//Client holbogdoh uyed
+socket.on('connect', function(){
+		alert("connected");
+		//socket.emit('adduser', prompt("What's your name?"));
+	});
+
+$(document).ready(function() {
+	$("a").click(function(){
+	  socket.emit('send_slide',$("#p").text())
+	});
+});
+</script>
+<body>
+<div class="container">
+	<input type="text" id="p"/><a href="#">Change Slide</a>
+</div>
+</body>

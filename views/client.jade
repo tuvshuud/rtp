@@ -1,0 +1,73 @@
+!!! 5
+html
+	head
+		include header
+		script
+			var srvr = "#{server}";
+			var usr = "#{user}";
+			var socket = io.connect(srvr);
+			var chat = io.connect(srvr + '/chat');
+			socket.on('connect', function(i, slides){
+			});
+			socket.on('init', function(i, slides){
+			$("img").attr("src", slides[i]);
+			});
+			socket.on('update_slide', function(i, slides){
+			$("img").attr("src", slides[i]);
+			});
+			socket.on('update_title', function(title){
+				say(title + ' нэртэй ppt гарж байна', 'info');
+			});
+			chat.on('connect', function(){
+				chat.emit('adduser', usr);
+			});
+			chat.on('updatechat', function (username, data) {
+				$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+				$('#conversation').animate({ scrollTop: $('#conversation').height() }, 1000);
+			});
+			chat.on('updateusers', function (data) {
+				$('#users').empty();
+				$.each(data, function( key, value ){
+					$('#users').append('<div>' + key + '</div>');
+				});
+			});
+			$(function(){
+				$('#send').click(function(){
+					var message =  $('#msg').val();
+					$('#msg').val('');
+					chat.emit('sendchat', message);
+				});
+				$('#msg').keypress(function(e){
+					if(e.which == 13) {
+						$(this).blur();
+						$(this).focus();
+						$('#send').focus().click();
+					}
+				});
+				$('#img-cont').css({'height': $(window).height()+100, 'width': $(window).height()+100});
+			});
+	body
+		div.container-fluid
+			div.navbar
+				div.navbar-inner
+					ul.nav
+						li 
+							a #{user}
+						li.pull-right
+							a(href='logout') Гарах
+			div.row-fluid
+				div.span9#img-cont
+					img.img-polaroid(src='')
+				div#chat.span3.well
+						div.alert.alert-success Online хэрэглэгчид
+						div#users
+						hr
+						div#conversation
+						hr
+						div.input-append
+							input#msg.input-medium(type='text')
+							a#send.btn 
+								i.icon-comment
+		.notifications.bottom-right
+					
+

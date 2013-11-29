@@ -1,0 +1,168 @@
+﻿!!! 5
+html
+	head
+		include header
+		link(rel='stylesheet', type='text/css', href='/public/css/custom.css')
+		script
+			var srvr = "#{server}";
+			var usr = "#{user}";
+			var socket = io.connect(srvr);
+			var chat = io.connect(srvr + '/chat');
+
+			socket.on('init', function(i, slides){
+				$("#slide").attr("src", slides[i]);
+			});
+			socket.on('status', function(msg){
+				say(msg, 'info');
+			});
+			socket.on('update_slide', function(i, slides){
+				$("#slide").attr("src", slides[i]);
+			});
+			socket.on('updateusers', function(data){
+				$('#connectedUser').empty();
+				$.each(data, function(key, value) {
+					$('#connectedUser').append('<div>' + key + '</div>');
+				});
+			});
+			socket.on('delete_success', function(data){
+				say(data + " амжилттай устгагдлаа.", 'info');
+				$('#slideList a:has(img[alt="' + data + '"])').remove();
+				$('#slideList p:has(a[href="javascript:deletePpt(\'' + data + '\')"])').remove();
+			});
+			$(document).ready(function() {
+				var data = !{ppts};
+				$('#slideList').empty();
+				$.each(data, function(index,v){
+					$('#slideList').append('<a href="javascript:changePpt(\'' + v.title + '\')"><img src="' + v.thumb + '" alt="' + v.title + '" class="thumb img-rounded" /><a/><br><p>' + v.title + '<a href="javascript:deletePpt(\'' + v.title + '\')"><i class="icon-remove"></i></a></p><br>');
+				});
+				$("#n").click(function(){
+					socket.emit('send_slide', 'next');
+				});
+				$("#p").click(function(){
+					socket.emit('send_slide', 'previous');
+				});
+				$("#s").click(function(){
+					socket.emit('send_slide', 'start');
+				});
+				$("#e").click(function(){
+					socket.emit('send_slide', 'end');
+				});
+				$('#send').click(function(){
+					var message =  $('#msg').val();
+					$('#msg').val('');
+					chat.emit('sendchat', message);
+				});
+				$('#msg').keypress(function(e){
+					if(e.which == 13) {
+						$(this).blur();
+						$(this).focus();
+						$('#send').focus().click();
+					}
+				});
+				vpw = $(window).height()-50; 
+				$('#sidebar').css({'max-height': vpw, 'height': vpw});
+				$('#chat').css({'max-height': vpw, 'height': vpw})
+			});
+			$(document).keydown(function(e){
+				if(e.which == 37){
+					socket.emit('send_slide', 'previous');
+				}
+				if(e.which == 39){
+					socket.emit('send_slide', 'next');
+				}
+			});
+			function changePpt(id){
+				socket.emit('change_ppt', id);
+			}
+			function deletePpt(id){
+				socket.emit('delete_ppt', id);
+			}
+			function validate(){
+				var err = '';
+				var ext = $('input[type="file"]').val().split('.').pop().toLowerCase();
+				
+				if($.inArray(ext, ['ppt','pptx']) == -1) {
+					err = err + 'Зөвхөн ppt болон pptx файл оруулах боломжтой\n';
+				}
+				if ($('input[name="title"]').val()=="")
+					err = err + 'Presentation ийхаа нэрийг оруулна уу!\n';
+
+				if (err!=""){
+					say(err, 'info');
+					return false;
+				}
+				else 
+					return true;
+			}
+			chat.on('connect', function(){
+				chat.emit('adduser', usr);
+			});
+			chat.on('updatechat', function (username, data) {
+				$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+				$('#conversation').animate({ scrollTop: $('#conversation').height() }, 1000);
+			});
+			chat.on('updateusers', function (data) {
+				$('#users').empty();
+				$.each(data, function( key, value ){
+					$('#users').append('<div>' + key + '</div>');
+				});
+			});
+
+		body
+			div.container-fluid
+				p
+				div.row-fluid
+					div.span2.well#sidebar
+						div.alert.alert-success PPT хуулах
+						section#slideUpload
+							form(method='post', action='/host', enctype='multipart/form-data', onsubmit='return validate()')
+								label
+									input(type='file', name='ppt')
+								p
+								div.input-append
+									input.input-small(type='text', name='title')
+									input.btn.btn-primary(type='submit')
+								div.progress.progress-striped.active.hide
+									div.bar(style='width: 0%')
+								div.alert.hide
+									button.close(type='button', data-dismiss='alert') x
+									span
+										strong.message
+						hr
+						div.alert.alert-success Бүх PPT үүд
+						section#slideList
+							| Slide List
+						hr
+						div.alert.alert-success Оюутнууд
+						section#connectedUser
+							
+						hr
+						div.alert.alert-success Удирдлагын хэсэг
+						secion#usercontrol
+							a(href='/logout') Гарах
+					div.span6
+							#image_container
+							img#slide.img-polaroid(src='')
+							section#control
+								div.btn-group
+									a#s.btn(href='#') 
+										i.icon-fast-backward
+									a#p.btn(href='#') 
+										i.icon-step-backward
+									a#n.btn(href='#')
+										i.icon-step-forward
+									a#e.btn(href='#')
+										i.icon-fast-forward
+							hr
+					div#chat.span3.well
+						div.alert.alert-success Online хэрэглэгчид
+						div#users
+						hr
+						div#conversation
+						hr
+						div.input-append
+							input#msg.input-medium(type='text')
+							a#send.btn 
+								i.icon-comment
+			.notifications.bottom-right
+
