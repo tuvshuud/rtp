@@ -1,7 +1,7 @@
 REAL TIME PRESENTER
 ===
 
-Real Time Presenter
+Web app to present powerpoint slides in a classroom
 
 Should work in Windows. If you see, there is small app called converter.exe 
 that is used to convert .ppt into images.
